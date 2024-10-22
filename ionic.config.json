@@ -1,0 +1,7 @@
+{
+  "name": "fastmath",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
