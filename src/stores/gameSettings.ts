@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 
 export const useGameSettingsStore = defineStore("gameSettings", () => {
   const addition = ref(true);
-  const additionOptions = reactive({
+  const additionOptions = ref({
     firstOperand: {
       lowerBound: 2,
       upperBound: 99,
@@ -18,11 +18,11 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const additionReset = () => {
     addition.value = true;
-    additionOptions.firstOperand = {
+    additionOptions.value.firstOperand = {
       lowerBound: 2,
       upperBound: 99,
     };
-    additionOptions.secondOperand = {
+    additionOptions.value.secondOperand = {
       lowerBound: 2,
       upperBound: 99,
     };
@@ -32,14 +32,14 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const subtraction = ref(true);
   const sameAsAddition = ref(true);
-  const subtractionOptions = reactive({
+  const subtractionOptions = ref({
     firstOperand: {
       lowerBound: 2,
       upperBound: 198,
     },
     secondOperand: {
       lowerBound: 2,
-      upperBound: 99,
+      upperBound: 12,
     },
   });
 
@@ -49,13 +49,13 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const subtractionReset = () => {
     subtraction.value = true;
-    subtractionOptions.firstOperand = {
+    subtractionOptions.value.firstOperand = {
       lowerBound: 2,
       upperBound: 198,
     };
-    subtractionOptions.secondOperand = {
+    subtractionOptions.value.secondOperand = {
       lowerBound: 2,
-      upperBound: 99,
+      upperBound: 12,
     };
     negativeResults.value = false;
 
@@ -64,7 +64,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const multiplication = ref(true);
 
-  const multiplicationOptions = reactive({
+  const multiplicationOptions = ref({
     firstOperand: {
       lowerBound: 2,
       upperBound: 12,
@@ -79,11 +79,11 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const multiplicationReset = () => {
     multiplication.value = true;
-    multiplicationOptions.firstOperand = {
+    multiplicationOptions.value.firstOperand = {
       lowerBound: 2,
       upperBound: 12,
     };
-    multiplicationOptions.secondOperand = {
+    multiplicationOptions.value.secondOperand = {
       lowerBound: 2,
       upperBound: 99,
     };
@@ -95,7 +95,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const sameAsMultiplication = ref(true);
 
-  const divisionOptions = reactive({
+  const divisionOptions = ref({
     firstOperand: {
       lowerBound: 4,
       upperBound: 1188,
@@ -110,11 +110,11 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const divisionReset = () => {
     division.value = true;
-    divisionOptions.firstOperand = {
+    divisionOptions.value.firstOperand = {
       lowerBound: 4,
       upperBound: 1188,
     };
-    divisionOptions.secondOperand = {
+    divisionOptions.value.secondOperand = {
       lowerBound: 2,
       upperBound: 12,
     };

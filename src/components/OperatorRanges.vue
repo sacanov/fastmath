@@ -19,16 +19,16 @@ const secondUpper = ref();
 const filter = (ev, arg: string) => {
   const filtered = ev.target.value.replace(/[^0-9]+/g, "");
 
-  if (arg == "firstLower" && firstLower != undefined) {
+  if (arg == "firstLower" && firstLower) {
     firstLower.value.$el.value = filtered;
     ranges.firstOperand.lowerBound = filtered;
-  } else if (arg == "firstUpper" && firstUpper != undefined) {
+  } else if (arg == "firstUpper" && firstUpper) {
     firstUpper.value.$el.value = filtered;
     ranges.firstOperand.upperBound = filtered;
-  } else if (arg == "secondLower" && secondLower != undefined) {
+  } else if (arg == "secondLower" && secondLower) {
     secondLower.value.$el.value = filtered;
     ranges.secondOperand.lowerBound = filtered;
-  } else if (arg == "secondUpper" && secondLower != undefined) {
+  } else if (arg == "secondUpper" && secondLower) {
     secondUpper.value.$el.value = filtered;
     ranges.secondOperand.upperBound = filtered;
   }
@@ -36,8 +36,7 @@ const filter = (ev, arg: string) => {
 </script>
 
 <template>
-  <strong :class="{ disabled: disabled }"> Range:</strong>
-  <!-- <h8 :class="{ disabled: disabled }">Range:</h8> -->
+  <strong :class="{ disabled: disabled }">Range:</strong>
   <div class="ranges" :class="{ disabled: disabled }">
     <div class="inline">
       (<IonInput
@@ -47,6 +46,7 @@ const filter = (ev, arg: string) => {
         v-model="ranges.firstOperand.lowerBound"
         :disabled="disabled"
         inputmode="numeric"
+        data-testid="ranges-input"
       ></IonInput>
       to
       <IonInput
@@ -56,6 +56,7 @@ const filter = (ev, arg: string) => {
         v-model="ranges.firstOperand.upperBound"
         :disabled="disabled"
         inputmode="numeric"
+        data-testid="ranges-input"
       ></IonInput
       >)
     </div>
@@ -70,6 +71,7 @@ const filter = (ev, arg: string) => {
         v-model="ranges.secondOperand.lowerBound"
         :disabled="disabled"
         inputmode="numeric"
+        data-testid="ranges-input"
       ></IonInput>
       to
       <IonInput
@@ -79,6 +81,7 @@ const filter = (ev, arg: string) => {
         v-model="ranges.secondOperand.upperBound"
         :disabled="disabled"
         inputmode="numeric"
+        data-testid="ranges-input"
       ></IonInput
       >)
     </div>

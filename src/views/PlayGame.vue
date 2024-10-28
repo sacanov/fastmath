@@ -1,10 +1,5 @@
 <!-- ToDo
-
-start game button functionality
-
 if empty take as default, take highest as highest
-
-tests
 
 visual testing?
 
@@ -27,6 +22,7 @@ import {
   IonInput,
   IonPage,
   IonRow,
+  IonToast,
 } from "@ionic/vue";
 import { ref } from "vue";
 
@@ -80,6 +76,85 @@ const filter = (ev, arg: string) => {
     duration.value = filtered;
   }
 };
+
+const isAdditionOpen = ref(false);
+
+const isSubtractionOpen = ref(false);
+
+const isMultiplicationOpen = ref(false);
+
+const isDivisionOpen = ref(false);
+
+const isEmptyWarningOpen = ref(false);
+const isBoundsWarningOpen = ref(false);
+const isStartGameWarningOpen = ref(false);
+
+const validateOptions = (ev: string) => {
+  let inputs: number[];
+  switch (ev) {
+    case "Addition":
+      inputs = [
+        ...Object.values(additionOptions.value.firstOperand),
+        ...Object.values(additionOptions.value.secondOperand),
+        decimalPlacesAdd.value,
+      ];
+      if (inputs.some((el) => String(el).length == 0)) {
+        isEmptyWarningOpen.value = true;
+      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
+        isBoundsWarningOpen.value = true;
+      } else {
+        isAdditionOpen.value = false;
+      }
+      break;
+    case "Subtraction":
+      inputs = [
+        ...Object.values(subtractionOptions.value.firstOperand),
+        ...Object.values(subtractionOptions.value.secondOperand),
+        decimalPlacesAdd.value,
+      ];
+      if (inputs.some((el) => String(el).length == 0)) {
+        isEmptyWarningOpen.value = true;
+      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
+        isBoundsWarningOpen.value = true;
+      } else {
+        isSubtractionOpen.value = false;
+      }
+    case "Multiplication":
+      inputs = [
+        ...Object.values(multiplicationOptions.value.firstOperand),
+        ...Object.values(multiplicationOptions.value.secondOperand),
+        decimalPlacesAdd.value,
+      ];
+      if (inputs.some((el) => String(el).length == 0)) {
+        isEmptyWarningOpen.value = true;
+      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
+        isBoundsWarningOpen.value = true;
+      } else {
+        isMultiplicationOpen.value = false;
+      }
+    case "Division":
+      inputs = [
+        ...Object.values(divisionOptions.value.firstOperand),
+        ...Object.values(divisionOptions.value.secondOperand),
+        decimalPlacesAdd.value,
+      ];
+      if (inputs.some((el) => String(el).length == 0)) {
+        isEmptyWarningOpen.value = true;
+      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
+        isBoundsWarningOpen.value = true;
+      } else {
+        isDivisionOpen.value = false;
+      }
+  }
+};
+
+const startGame = () => {
+  if (
+    ![addition, subtraction, multiplication, division].some((el) => el.value)
+  ) {
+    isStartGameWarningOpen.value = true;
+  }
+};
 </script>
 
 <template>
@@ -104,10 +179,12 @@ const filter = (ev, arg: string) => {
           <IonCol size="12" size-sm="6" size-xl="3">
             <OperatorOptions
               name="Addition"
-              :checked="addition"
               modal-height="low"
-              @change="(val) => (addition = val)"
+              :isOpen="isAdditionOpen"
+              v-model:checked="addition"
               @reset="store.additionReset"
+              @dismiss="validateOptions($event)"
+              @open-modal="isAdditionOpen = true"
             >
               <template #card-content>
                 <p>
@@ -133,6 +210,7 @@ const filter = (ev, arg: string) => {
                     ref="additionDecimalsInput"
                     @ion-input="filter($event, 'addition')"
                     inputmode="numeric"
+                    data-testid="decimal-places"
                   ></IonInput>
                 </div>
               </template>
@@ -142,10 +220,12 @@ const filter = (ev, arg: string) => {
           <IonCol size="12" size-sm="6" size-xl="3">
             <OperatorOptions
               name="Subtraction"
-              :checked="subtraction"
+              v-model:checked="subtraction"
               modal-height="high"
-              @change="(val) => (subtraction = val)"
+              :is-open="isSubtractionOpen"
               @reset="store.subtractionReset"
+              @dismiss="validateOptions($event)"
+              @open-modal="isSubtractionOpen = true"
             >
               <template #card-content>
                 <p v-if="sameAsAddition">Addition problems in reverse</p>
@@ -166,7 +246,10 @@ const filter = (ev, arg: string) => {
               <template #options>
                 <div class="inline-checkbox">
                   Addition problems in reverse
-                  <IonCheckbox v-model="sameAsAddition"></IonCheckbox>
+                  <IonCheckbox
+                    v-model="sameAsAddition"
+                    data-testid="same-as-addition"
+                  ></IonCheckbox>
                 </div>
                 <OperatorRanges
                   symbol="-"
@@ -180,6 +263,7 @@ const filter = (ev, arg: string) => {
                   <IonCheckbox
                     v-model="negativeResults"
                     :disabled="sameAsAddition"
+                    data-testid="negative-results-checkbox"
                   ></IonCheckbox>
                 </div>
 
@@ -194,6 +278,7 @@ const filter = (ev, arg: string) => {
                     @ion-input="filter($event, 'subtraction')"
                     :disabled="sameAsAddition"
                     inputmode="numeric"
+                    data-testid="decimal-places"
                   ></IonInput>
                 </div>
               </template>
@@ -203,10 +288,12 @@ const filter = (ev, arg: string) => {
           <IonCol size="12" size-sm="6" size-xl="3">
             <OperatorOptions
               name="Multiplication"
-              :checked="multiplication"
+              v-model:checked="multiplication"
               modal-height="low"
-              @change="(val) => (multiplication = val)"
+              :is-open="isMultiplicationOpen"
               @reset="store.multiplicationReset"
+              @dismiss="validateOptions($event)"
+              @open-modal="isMultiplicationOpen = true"
             >
               <template #card-content>
                 <p>
@@ -232,6 +319,7 @@ const filter = (ev, arg: string) => {
                     ref="multiplicationDecimalsInput"
                     @ion-input="filter($event, 'multiplication')"
                     inputmode="numeric"
+                    data-testid="decimal-places"
                   ></IonInput>
                 </div>
               </template>
@@ -241,10 +329,12 @@ const filter = (ev, arg: string) => {
           <IonCol size="12" size-sm="6" size-xl="3">
             <OperatorOptions
               name="Division"
-              :checked="division"
+              v-model:checked="division"
               modal-height="high"
-              @change="(val) => (division = val)"
+              :is-open="isDivisionOpen"
               @reset="store.divisionReset"
+              @dismiss="validateOptions($event)"
+              @open-modal="isDivisionOpen = true"
             >
               <template #card-content>
                 <p v-if="sameAsMultiplication">
@@ -264,7 +354,10 @@ const filter = (ev, arg: string) => {
               <template #options>
                 <div class="inline-checkbox">
                   Multiplication problems in reverse
-                  <IonCheckbox v-model="sameAsMultiplication"> </IonCheckbox>
+                  <IonCheckbox
+                    v-model="sameAsMultiplication"
+                    data-testid="same-as-multiplication"
+                  ></IonCheckbox>
                 </div>
 
                 <OperatorRanges
@@ -283,6 +376,7 @@ const filter = (ev, arg: string) => {
                     @ion-input="filter($event, 'division')"
                     :disabled="sameAsMultiplication"
                     inputmode="numeric"
+                    data-testid="decimal-places"
                   ></IonInput>
                 </div>
               </template>
@@ -302,8 +396,34 @@ const filter = (ev, arg: string) => {
         seconds
       </div>
       <div class="start-game">
-        <IonButton size="large" class="start-game">Start Game</IonButton>
+        <IonButton
+          size="large"
+          data-testid="start-game-button"
+          @click="startGame"
+          >Start Game</IonButton
+        >
       </div>
+
+      {{ [addition, subtraction, multiplication, division] }}
+
+      <ion-toast
+        :isOpen="isEmptyWarningOpen"
+        :duration="5000"
+        message="inputs cannot be empty"
+        @didDismiss="isEmptyWarningOpen = false"
+      ></ion-toast>
+      <ion-toast
+        :isOpen="isBoundsWarningOpen"
+        :duration="5000"
+        message="Lower bound must be smaller than upper bound"
+        @didDismiss="isBoundsWarningOpen = false"
+      ></ion-toast>
+      <ion-toast
+        :isOpen="isStartGameWarningOpen"
+        :duration="5000"
+        message="At least one operation must be selected"
+        @didDismiss="isStartGameWarningOpen = false"
+      ></ion-toast>
     </ion-content>
   </IonPage>
 </template>
