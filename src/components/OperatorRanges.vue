@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IonInput } from "@ionic/vue";
 import { reactive, ref } from "vue";
-import Ranges from "@/types/ranges";
+import { Ranges } from "@/types/ranges";
 
 const props = defineProps<{
   symbol: string;
@@ -16,21 +16,23 @@ const firstUpper = ref();
 const secondLower = ref();
 const secondUpper = ref();
 
-const filter = (ev, arg: string) => {
-  const filtered = ev.target.value.replace(/[^0-9]+/g, "");
+const filter = (ev: string | undefined | null, arg: string) => {
+  if (ev) {
+    const filtered = ev.replace(/[^0-9]+/g, "");
 
-  if (arg == "firstLower" && firstLower) {
-    firstLower.value.$el.value = filtered;
-    ranges.firstOperand.lowerBound = filtered;
-  } else if (arg == "firstUpper" && firstUpper) {
-    firstUpper.value.$el.value = filtered;
-    ranges.firstOperand.upperBound = filtered;
-  } else if (arg == "secondLower" && secondLower) {
-    secondLower.value.$el.value = filtered;
-    ranges.secondOperand.lowerBound = filtered;
-  } else if (arg == "secondUpper" && secondLower) {
-    secondUpper.value.$el.value = filtered;
-    ranges.secondOperand.upperBound = filtered;
+    if (arg == "firstLower" && firstLower) {
+      firstLower.value.$el.value = filtered;
+      ranges.firstOperand.lowerBound = Number(filtered);
+    } else if (arg == "firstUpper" && firstUpper) {
+      firstUpper.value.$el.value = filtered;
+      ranges.firstOperand.upperBound = Number(filtered);
+    } else if (arg == "secondLower" && secondLower) {
+      secondLower.value.$el.value = filtered;
+      ranges.secondOperand.lowerBound = Number(filtered);
+    } else if (arg == "secondUpper" && secondLower) {
+      secondUpper.value.$el.value = filtered;
+      ranges.secondOperand.upperBound = Number(filtered);
+    }
   }
 };
 </script>
@@ -42,7 +44,7 @@ const filter = (ev, arg: string) => {
       (<IonInput
         :maxlength="8"
         ref="firstLower"
-        @ion-input="filter($event, 'firstLower')"
+        @ion-input="filter(String($event.target.value), 'firstLower')"
         v-model="ranges.firstOperand.lowerBound"
         :disabled="disabled"
         inputmode="numeric"
@@ -52,7 +54,7 @@ const filter = (ev, arg: string) => {
       <IonInput
         :maxlength="8"
         ref="firstUpper"
-        @ion-input="filter($event, 'firstUpper')"
+        @ion-input="filter(String($event.target.value), 'firstUpper')"
         v-model="ranges.firstOperand.upperBound"
         :disabled="disabled"
         inputmode="numeric"
@@ -67,7 +69,7 @@ const filter = (ev, arg: string) => {
       (<IonInput
         :maxlength="8"
         ref="secondLower"
-        @ion-input="filter($event, 'secondLower')"
+        @ion-input="filter(String($event.target.value), 'secondLower')"
         v-model="ranges.secondOperand.lowerBound"
         :disabled="disabled"
         inputmode="numeric"
@@ -77,7 +79,7 @@ const filter = (ev, arg: string) => {
       <IonInput
         :maxlength="8"
         ref="secondUpper"
-        @ion-input="filter($event, 'secondUpper')"
+        @ion-input="filter(String($event.target.value), 'secondUpper')"
         v-model="ranges.secondOperand.upperBound"
         :disabled="disabled"
         inputmode="numeric"

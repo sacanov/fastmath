@@ -14,7 +14,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
     },
   });
 
-  const decimalPlacesAdd = ref(0);
+  const additionDecimalPlaces = ref(0);
 
   const additionReset = () => {
     addition.value = true;
@@ -27,7 +27,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
       upperBound: 99,
     };
 
-    decimalPlacesAdd.value = 0;
+    additionDecimalPlaces.value = 0;
   };
 
   const subtraction = ref(true);
@@ -45,7 +45,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
 
   const negativeResults = ref(false);
 
-  const decimalPlacesSub = ref(0);
+  const subtractionDecimalPlaces = ref(0);
 
   const subtractionReset = () => {
     subtraction.value = true;
@@ -59,7 +59,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
     };
     negativeResults.value = false;
 
-    decimalPlacesSub.value = 0;
+    subtractionDecimalPlaces.value = 0;
   };
 
   const multiplication = ref(true);
@@ -75,7 +75,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
     },
   });
 
-  const decimalPlacesMult = ref(0);
+  const multiplicationDecimalPlaces = ref(0);
 
   const multiplicationReset = () => {
     multiplication.value = true;
@@ -88,7 +88,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
       upperBound: 99,
     };
 
-    decimalPlacesMult.value = 0;
+    multiplicationDecimalPlaces.value = 0;
   };
 
   const division = ref(true);
@@ -106,7 +106,7 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
     },
   });
 
-  const decimalPlacesDiv = ref(0);
+  const divisionDecimalPlaces = ref(0);
 
   const divisionReset = () => {
     division.value = true;
@@ -119,10 +119,12 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
       upperBound: 12,
     };
 
-    decimalPlacesDiv.value = 0;
+    divisionDecimalPlaces.value = 0;
   };
 
   const duration = ref(120);
+
+  const playing = ref(false);
 
   const $reset = () => {
     additionReset();
@@ -131,29 +133,31 @@ export const useGameSettingsStore = defineStore("gameSettings", () => {
     divisionReset();
     sameAsAddition.value = true;
     sameAsMultiplication.value = true;
+    playing.value = true;
   };
 
   return {
     addition,
     additionOptions,
-    decimalPlacesAdd,
+    additionDecimalPlaces,
     additionReset,
     subtraction,
     sameAsAddition,
     subtractionOptions,
     negativeResults,
-    decimalPlacesSub,
+    subtractionDecimalPlaces,
     subtractionReset,
     multiplication,
     multiplicationOptions,
-    decimalPlacesMult,
+    multiplicationDecimalPlaces,
     multiplicationReset,
     division,
     sameAsMultiplication,
     divisionOptions,
-    decimalPlacesDiv,
+    divisionDecimalPlaces,
     divisionReset,
     duration,
+    playing,
     $reset,
   };
 });

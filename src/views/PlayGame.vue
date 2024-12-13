@@ -25,25 +25,26 @@ import {
   IonToast,
 } from "@ionic/vue";
 import { ref } from "vue";
+import router from "@/router";
 
 const store = useGameSettingsStore();
 
 const {
   addition,
   additionOptions,
-  decimalPlacesAdd,
+  additionDecimalPlaces,
   subtraction,
   sameAsAddition,
   subtractionOptions,
   negativeResults,
-  decimalPlacesSub,
+  subtractionDecimalPlaces,
   multiplication,
   multiplicationOptions,
-  decimalPlacesMult,
+  multiplicationDecimalPlaces,
   division,
   sameAsMultiplication,
   divisionOptions,
-  decimalPlacesDiv,
+  divisionDecimalPlaces,
   duration,
 } = storeToRefs(store);
 
@@ -53,27 +54,29 @@ const multiplicationDecimalsInput = ref();
 const divisionDecimalsInput = ref();
 const durationInput = ref();
 
-const filter = (ev, arg: string) => {
-  const filtered = ev.target.value.replace(/[^0-9]+/g, "");
+const filter = (value: string | undefined | null, arg: string) => {
+  if (value) {
+    const filtered = value.replace(/[^0-9]+/g, "");
 
-  if (arg == "addition" && additionDecimalsInput != undefined) {
-    additionDecimalsInput.value.$el.value = filtered;
-    decimalPlacesAdd.value = filtered;
-  } else if (arg == "subtraction" && subtractionDecimalsInput != undefined) {
-    subtractionDecimalsInput.value.$el.value = filtered;
-    decimalPlacesSub.value = filtered;
-  } else if (
-    arg == "multiplication" &&
-    multiplicationDecimalsInput != undefined
-  ) {
-    multiplicationDecimalsInput.value.$el.value = filtered;
-    decimalPlacesMult.value = filtered;
-  } else if (arg == "division" && divisionDecimalsInput != undefined) {
-    divisionDecimalsInput.value.$el.value = filtered;
-    decimalPlacesDiv.value = filtered;
-  } else if (arg == "duration" && durationInput != undefined) {
-    durationInput.value.$el.value = filtered;
-    duration.value = filtered;
+    if (arg == "addition" && additionDecimalsInput != undefined) {
+      additionDecimalsInput.value.$el.value = filtered;
+      additionDecimalPlaces.value = Number(filtered);
+    } else if (arg == "subtraction" && subtractionDecimalsInput != undefined) {
+      subtractionDecimalsInput.value.$el.value = filtered;
+      subtractionDecimalPlaces.value = Number(filtered);
+    } else if (
+      arg == "multiplication" &&
+      multiplicationDecimalsInput != undefined
+    ) {
+      multiplicationDecimalsInput.value.$el.value = filtered;
+      multiplicationDecimalPlaces.value = Number(filtered);
+    } else if (arg == "division" && divisionDecimalsInput != undefined) {
+      divisionDecimalsInput.value.$el.value = filtered;
+      divisionDecimalPlaces.value = Number(filtered);
+    } else if (arg == "duration" && durationInput != undefined) {
+      durationInput.value.$el.value = filtered;
+      duration.value = Number(filtered);
+    }
   }
 };
 
@@ -96,7 +99,7 @@ const validateOptions = (ev: string) => {
       inputs = [
         ...Object.values(additionOptions.value.firstOperand),
         ...Object.values(additionOptions.value.secondOperand),
-        decimalPlacesAdd.value,
+        additionDecimalPlaces.value,
       ];
       if (inputs.some((el) => String(el).length == 0)) {
         isEmptyWarningOpen.value = true;
@@ -110,7 +113,7 @@ const validateOptions = (ev: string) => {
       inputs = [
         ...Object.values(subtractionOptions.value.firstOperand),
         ...Object.values(subtractionOptions.value.secondOperand),
-        decimalPlacesAdd.value,
+        additionDecimalPlaces.value,
       ];
       if (inputs.some((el) => String(el).length == 0)) {
         isEmptyWarningOpen.value = true;
@@ -123,7 +126,7 @@ const validateOptions = (ev: string) => {
       inputs = [
         ...Object.values(multiplicationOptions.value.firstOperand),
         ...Object.values(multiplicationOptions.value.secondOperand),
-        decimalPlacesAdd.value,
+        additionDecimalPlaces.value,
       ];
       if (inputs.some((el) => String(el).length == 0)) {
         isEmptyWarningOpen.value = true;
@@ -136,7 +139,7 @@ const validateOptions = (ev: string) => {
       inputs = [
         ...Object.values(divisionOptions.value.firstOperand),
         ...Object.values(divisionOptions.value.secondOperand),
-        decimalPlacesAdd.value,
+        additionDecimalPlaces.value,
       ];
       if (inputs.some((el) => String(el).length == 0)) {
         isEmptyWarningOpen.value = true;
@@ -153,6 +156,9 @@ const startGame = () => {
     ![addition, subtraction, multiplication, division].some((el) => el.value)
   ) {
     isStartGameWarningOpen.value = true;
+  } else {
+    store.playing = true;
+    router.push("/game");
   }
 };
 </script>
@@ -194,7 +200,7 @@ const startGame = () => {
                   }}
                   to {{ additionOptions.secondOperand.upperBound }})
                 </p>
-                <p>{{ decimalPlacesAdd }} decimal places</p>
+                <p>{{ additionDecimalPlaces }} decimal places</p>
               </template>
               <template #options>
                 <OperatorRanges
@@ -205,10 +211,10 @@ const startGame = () => {
                 <div class="decimal-places">
                   Decimal places
                   <IonInput
-                    v-model="decimalPlacesAdd"
+                    v-model="additionDecimalPlaces"
                     :maxlength="1"
                     ref="additionDecimalsInput"
-                    @ion-input="filter($event, 'addition')"
+                    @ion-input="filter(String($event.target.value), 'addition')"
                     inputmode="numeric"
                     data-testid="decimal-places"
                   ></IonInput>
@@ -228,7 +234,9 @@ const startGame = () => {
               @open-modal="isSubtractionOpen = true"
             >
               <template #card-content>
-                <p v-if="sameAsAddition">Addition problems in reverse</p>
+                <p v-if="sameAsAddition" class="center-text">
+                  Addition problems in reverse
+                </p>
                 <template v-else>
                   <p>
                     Range: ({{ subtractionOptions.firstOperand.lowerBound }} to
@@ -237,7 +245,7 @@ const startGame = () => {
                     }}
                     to {{ subtractionOptions.secondOperand.upperBound }})
                   </p>
-                  <p>{{ decimalPlacesSub }} decimal places</p>
+                  <p>{{ subtractionDecimalPlaces }} decimal places</p>
                   <p>
                     <span v-if="!negativeResults">No</span> negative results
                   </p>
@@ -272,10 +280,12 @@ const startGame = () => {
                     >Decimal places</span
                   >
                   <IonInput
-                    v-model="decimalPlacesSub"
+                    v-model="subtractionDecimalPlaces"
                     :maxlength="1"
                     ref="subtractionDecimalsInput"
-                    @ion-input="filter($event, 'subtraction')"
+                    @ion-input="
+                      filter(String($event.target.value), 'subtraction')
+                    "
                     :disabled="sameAsAddition"
                     inputmode="numeric"
                     data-testid="decimal-places"
@@ -303,7 +313,7 @@ const startGame = () => {
                   }}
                   to {{ multiplicationOptions.secondOperand.upperBound }})
                 </p>
-                <p>{{ decimalPlacesMult }} decimal places</p>
+                <p>{{ multiplicationDecimalPlaces }} decimal places</p>
               </template>
               <template #options>
                 <OperatorRanges
@@ -314,10 +324,12 @@ const startGame = () => {
                 <div class="decimal-places">
                   Decimal places
                   <IonInput
-                    v-model="decimalPlacesMult"
+                    v-model="multiplicationDecimalPlaces"
                     :maxlength="1"
                     ref="multiplicationDecimalsInput"
-                    @ion-input="filter($event, 'multiplication')"
+                    @ion-input="
+                      filter(String($event.target.value), 'multiplication')
+                    "
                     inputmode="numeric"
                     data-testid="decimal-places"
                   ></IonInput>
@@ -337,7 +349,7 @@ const startGame = () => {
               @open-modal="isDivisionOpen = true"
             >
               <template #card-content>
-                <p v-if="sameAsMultiplication">
+                <p v-if="sameAsMultiplication" class="center-text">
                   Multiplication problems in reverse
                 </p>
                 <template v-else>
@@ -348,7 +360,7 @@ const startGame = () => {
                     }}
                     to {{ divisionOptions.secondOperand.upperBound }})
                   </p>
-                  <p>{{ decimalPlacesDiv }} decimal places</p>
+                  <p>{{ divisionDecimalPlaces }} decimal places</p>
                 </template>
               </template>
               <template #options>
@@ -370,10 +382,10 @@ const startGame = () => {
                     >Decimal places</span
                   >
                   <IonInput
-                    v-model="decimalPlacesDiv"
+                    v-model="divisionDecimalPlaces"
                     :maxlength="1"
                     ref="divisionDecimalsInput"
-                    @ion-input="filter($event, 'division')"
+                    @ion-input="filter(String($event.target.value), 'division')"
                     :disabled="sameAsMultiplication"
                     inputmode="numeric"
                     data-testid="decimal-places"
@@ -390,7 +402,7 @@ const startGame = () => {
           :maxlength="8"
           v-model="duration"
           ref="durationInput"
-          @ion-input="filter($event, 'duration')"
+          @ion-input="filter(String($event.target.value), 'duration')"
           inputmode="numeric"
         ></IonInput>
         seconds
@@ -404,31 +416,35 @@ const startGame = () => {
         >
       </div>
 
-      {{ [addition, subtraction, multiplication, division] }}
-
       <ion-toast
         :isOpen="isEmptyWarningOpen"
         :duration="5000"
         message="inputs cannot be empty"
         @didDismiss="isEmptyWarningOpen = false"
+        class="warning"
       ></ion-toast>
       <ion-toast
         :isOpen="isBoundsWarningOpen"
         :duration="5000"
         message="Lower bound must be smaller than upper bound"
         @didDismiss="isBoundsWarningOpen = false"
+        class="warning"
       ></ion-toast>
       <ion-toast
         :isOpen="isStartGameWarningOpen"
         :duration="5000"
         message="At least one operation must be selected"
         @didDismiss="isStartGameWarningOpen = false"
+        class="warning"
       ></ion-toast>
     </ion-content>
   </IonPage>
 </template>
 
 <style scoped>
+.center-text {
+  text-align: center;
+}
 .decimal-places {
   display: flex;
   align-items: center;
@@ -489,6 +505,10 @@ const startGame = () => {
   display: flex;
   justify-content: center;
   margin: 0.4em auto;
+}
+.warning {
+  --background: var(--error-container);
+  --color: var(--on-error-container);
 }
 ion-content {
   max-width: 1500px;

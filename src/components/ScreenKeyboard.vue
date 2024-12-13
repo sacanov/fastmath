@@ -1,0 +1,21 @@
+<script setup lang="ts"></script>
+
+<template>
+  <ion-grid>
+    <ion-row>
+      <ion-col>1</ion-col>
+      <ion-col>2</ion-col>
+      <ion-col>3</ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>4</ion-col>
+      <ion-col>5</ion-col>
+      <ion-col>6</ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>7</ion-col>
+      <ion-col>8</ion-col>
+      <ion-col>9</ion-col>
+    </ion-row>
+  </ion-grid>
+</template>

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
 import TabsPage from "../views/TabsPage.vue";
+import { useGameSettingsStore } from "@/stores/gameSettings";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -28,6 +29,16 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Tab3Page.vue"),
       },
     ],
+  },
+  {
+    path: "/game",
+    component: () => import("@/views/InGame.vue"),
+    beforeEnter: () => {
+      const gameStore = useGameSettingsStore();
+      if (!gameStore.playing) {
+        return "/";
+      }
+    },
   },
 ];
 
