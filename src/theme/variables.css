@@ -8,6 +8,27 @@ ion-input {
   --border-radius: 10px;
 }
 
+.centered-in-page {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform: translate(-50%, 50%);
+}
+
+.disabled {
+  opacity: 0.3;
+}
+
+.inline-checkbox {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.inline-checkbox ion-checkbox {
+  margin-left: 1em;
+}
+
 :root {
   --ion-background-color: #fcf8ff;
   --container-background: #f0ecf4;

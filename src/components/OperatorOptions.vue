@@ -14,40 +14,34 @@ import {
   IonToolbar,
 } from "@ionic/vue";
 import { settingsSharp } from "ionicons/icons";
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 
 const props = defineProps<{
   name: string;
   checked: boolean;
   modalHeight: "high" | "low";
-  isOpen: boolean;
+  canDismiss: boolean;
 }>();
 
-const emit = defineEmits(["reset", "update:checked", "dismiss", "openModal"]);
-
-const checked = ref(props.checked);
-
-const isOpen = ref(props.isOpen);
-
-watchEffect(() => {
-  isOpen.value = props.isOpen;
-});
+const emit = defineEmits(["reset", "update:checked", "dismiss"]);
 
 const handler = (ev: any) => {
-  checked.value = ev.detail.checked;
   emit("update:checked", ev.detail.checked);
 };
 
 const ok = () => {
-  emit("dismiss", props.name);
+  emit("dismiss");
+  modal.value.$el.dismiss();
 };
+
+const modal = ref();
 </script>
 <template>
   <IonCard>
     <IonCardTitle>
       <IonCheckbox
         justify="space-between"
-        :checked="checked"
+        :checked="props.checked"
         @ion-change="handler"
         :data-testid="`${name.toLowerCase()}-check`"
         >{{ props.name }}</IonCheckbox
@@ -59,16 +53,21 @@ const ok = () => {
       </div>
 
       <IonButton
-        @click="$emit('openModal')"
         expand="block"
         class="open-options"
         :data-testid="`open-${props.name.toLowerCase()}-options`"
+        :id="`open-${props.name.toLowerCase()}-options`"
       >
         <IonIcon :icon="settingsSharp"></IonIcon>
       </IonButton>
     </IonCardContent>
   </IonCard>
-  <IonModal ref="modal" :is-open="isOpen" :class="props.modalHeight">
+  <IonModal
+    ref="modal"
+    :trigger="`open-${props.name.toLowerCase()}-options`"
+    :class="props.modalHeight"
+    :can-dismiss="props.canDismiss"
+  >
     <IonHeader>
       <IonToolbar>
         <IonButtons slot="start">
@@ -180,9 +179,9 @@ ion-modal ion-content {
   ion-modal.low {
     --height: 13rem;
   }
-  ion-modal.high {
+  /* ion-modal.high {
     --height: 18rem;
-  }
+  } */
 }
 @media screen and (min-width: 576px) {
   ion-card {

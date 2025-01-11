@@ -5,25 +5,33 @@
 // backbutton restart
 
 import { Timer } from "./timer";
-import { ProblemGenerator } from "./problemGenerator";
+import {
+  FractionProblemGenerator,
+  ProblemGenerator,
+  SAProblemGenerator,
+} from "./problemGenerator";
 import { PiniaStore } from "@/types/piniaStore";
-import { Problem } from "@/types/problem";
-import { useGameSettingsStore } from "@/stores/gameSettings";
+import { SAProblem, FractionProblem } from "@/types/problem";
+import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
 import { ref, Ref, watch } from "vue";
+import { useFractionsStore } from "@/stores/FractionsSettings";
+import { Fraction } from "./fraction";
 
-export class Game {
-  // private store: { [key: string]: any };
-  private timer: Timer;
-  private problemGenerator: ProblemGenerator;
-  private currentProblem: Ref<Problem>;
-  private active: Ref<boolean>;
-  private score: Ref<number>;
+export abstract class Game {
+  protected timer: Timer;
+  abstract problemGenerator: ProblemGenerator;
+  abstract currentProblem: Ref<SAProblem> | Ref<FractionProblem>;
+  protected active: Ref<boolean>;
+  protected score: Ref<number>;
 
-  constructor(store: PiniaStore<typeof useGameSettingsStore>) {
-    // this.store = store;
+  abstract verifyAnswer(answer: number | Fraction): boolean;
+
+  constructor(
+    store:
+      | PiniaStore<typeof useSAGameSettingsStore>
+      | PiniaStore<typeof useFractionsStore>
+  ) {
     this.timer = new Timer(store.duration);
-    this.problemGenerator = new ProblemGenerator(store);
-    this.currentProblem = ref(this.problemGenerator.generateProblem());
     this.active = ref(false);
     this.score = ref(0);
     watch(this.timer.getTime(), (newValue) => {
@@ -33,11 +41,39 @@ export class Game {
     });
   }
   start() {
-    if (!this.active.value) {
+    if (this.timer.getStartingTime()) {
+      this.currentProblem.value = this.problemGenerator.generateProblem();
+      this.score.value = 0;
+      this.timer.restart();
+    } else {
       this.timer.start();
-      this.active.value = true;
-      // this.currentProblem.value = this.problemGenerator.generateProblem();
     }
+    this.active.value = true;
+  }
+
+  isActive(): boolean {
+    return this.active.value;
+  }
+
+  getTimeLeft(): Ref<number> {
+    return this.timer.getTime();
+  }
+
+  getScore(): Ref<number> {
+    return this.score;
+  }
+
+  abstract getCurrentProblem(): Ref<SAProblem> | Ref<FractionProblem>;
+}
+
+export class SAGame extends Game {
+  problemGenerator: SAProblemGenerator;
+  currentProblem: Ref<SAProblem>;
+
+  constructor(store: PiniaStore<typeof useSAGameSettingsStore>) {
+    super(store);
+    this.problemGenerator = new SAProblemGenerator(store);
+    this.currentProblem = ref(this.problemGenerator.generateProblem());
   }
 
   verifyAnswer(answer: number) {
@@ -51,19 +87,36 @@ export class Game {
     }
   }
 
-  isActive(): Ref<boolean> {
-    return this.active;
+  getCurrentProblem(): Ref<SAProblem> {
+    return this.currentProblem;
+  }
+}
+
+export class FractionGame extends Game {
+  problemGenerator: FractionProblemGenerator;
+  currentProblem: Ref<FractionProblem>;
+
+  constructor(store: PiniaStore<typeof useFractionsStore>) {
+    super(store);
+    this.problemGenerator = new FractionProblemGenerator(store);
+    this.currentProblem = ref(this.problemGenerator.generateProblem());
   }
 
-  getTimeLeft(): Ref<number> {
-    return this.timer.getTime();
+  verifyAnswer(answer: Fraction): boolean {
+    const solution = this.currentProblem.value.solution;
+    if (
+      answer.dividend === solution.dividend &&
+      answer.divisor === solution.divisor
+    ) {
+      this.score.value++;
+      this.currentProblem.value = this.problemGenerator.generateProblem();
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  getScore(): Ref<number> {
-    return this.score;
-  }
-
-  getCurrentProblem(): Ref<Problem> {
+  getCurrentProblem(): Ref<FractionProblem> {
     return this.currentProblem;
   }
 }

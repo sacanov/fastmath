@@ -2,10 +2,10 @@ import test, { expect } from "@playwright/test";
 
 test.describe("rendering", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:8100/tabs/tab1");
+    await page.goto("http://localhost:8100/speedArithmetic");
   });
   test("header", async ({ page }) => {
-    await expect(page.locator("h1")).toContainText("Arithmetic Game");
+    await expect(page.locator("h1")).toContainText("Speed Arithmetic");
     await expect(page.getByRole("main")).toContainText(
       "Try to solve as many problems as you can in a given amount of time."
     );
@@ -56,7 +56,7 @@ test.describe("rendering", () => {
 
 test.describe("modals", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:8100/tabs/tab1");
+    await page.goto("http://localhost:8100/speedArithmetic");
   });
 
   test("addition inputs work, integer input values", async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe("modals", () => {
     const testValues = ["10", "90", "10", "90"];
     const inputs = await inputComponents.locator("input");
 
-    for (let [i, input] of (await inputs.all()).entries()) {
+    for (const [i, input] of (await inputs.all()).entries()) {
       await input.fill(testValues[i]);
     }
 
@@ -109,7 +109,7 @@ test.describe("modals", () => {
     await expect(inputComponents.nth(0)).toHaveJSProperty("value", 2);
     await expect(inputComponents.nth(1)).toHaveJSProperty("value", 198);
     await expect(inputComponents.nth(2)).toHaveJSProperty("value", 2);
-    await expect(inputComponents.nth(3)).toHaveJSProperty("value", 12);
+    await expect(inputComponents.nth(3)).toHaveJSProperty("value", 99);
 
     await expect(page.getByTestId("decimal-places")).toHaveJSProperty(
       "value",
@@ -118,7 +118,7 @@ test.describe("modals", () => {
 
     const inputs = await inputComponents.locator("input");
 
-    for (let input of await inputs.all()) {
+    for (const input of await inputs.all()) {
       await expect(input).toBeDisabled();
     }
 
@@ -126,7 +126,7 @@ test.describe("modals", () => {
 
     const testValues = ["1fg0", "9aE0", "1fda0", "9sg0"];
 
-    for (let [i, input] of (await inputs.all()).entries()) {
+    for (const [i, input] of (await inputs.all()).entries()) {
       await input.fill(testValues[i]);
     }
 
@@ -166,7 +166,7 @@ test.describe("modals", () => {
     const testValues = ["fg-5d", "da7", "10SDF", "90daf"];
     const inputs = await inputComponents.locator("input");
 
-    for (let [i, input] of (await inputs.all()).entries()) {
+    for (const [i, input] of (await inputs.all()).entries()) {
       await input.fill(testValues[i]);
     }
 
@@ -203,7 +203,7 @@ test.describe("modals", () => {
 
     const inputs = await inputComponents.locator("input");
 
-    for (let input of await inputs.all()) {
+    for (const input of await inputs.all()) {
       await expect(input).toBeDisabled();
     }
 
@@ -211,7 +211,7 @@ test.describe("modals", () => {
 
     const testValues = ["9df", "1af-69", "3az", "1dx3"];
 
-    for (let [i, input] of (await inputs.all()).entries()) {
+    for (const [i, input] of (await inputs.all()).entries()) {
       await input.fill(testValues[i]);
     }
 
@@ -230,17 +230,17 @@ test.describe("modals", () => {
 
 test.describe("empty values toast", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:8100/tabs/tab1");
+    await page.goto("http://localhost:8100/speedArithmetic");
   });
   test("addition and multiplication", async ({ page }) => {
     const operations = ["Addition", "Multiplication"];
     let inputs;
-    for (let operation of operations) {
+    for (const operation of operations) {
       await page.getByTestId(`open-${operation.toLowerCase()}-options`).click();
 
       inputs = await page.getByTestId("ranges-input").locator("input");
 
-      for (let input of await inputs.all()) {
+      for (const input of await inputs.all()) {
         await input.fill("");
         await page.getByRole("button", { name: "ok" }).click();
         await expect(page.getByText("inputs cannot be empty")).toBeVisible();
@@ -253,14 +253,14 @@ test.describe("empty values toast", () => {
   test("division and subtraction", async ({ page }) => {
     const operations = ["Subtraction", "Division"];
     let inputs;
-    for (let operation of operations) {
+    for (const operation of operations) {
       await page.getByTestId(`open-${operation.toLowerCase()}-options`).click();
 
       inputs = await page.getByTestId("ranges-input").locator("input");
 
       await page.getByTestId(/^same-as.*/).click();
 
-      for (let input of await inputs.all()) {
+      for (const input of await inputs.all()) {
         await input.fill("");
         await page.getByRole("button", { name: "ok" }).click();
         await expect(page.getByText("inputs cannot be empty")).toBeVisible();
@@ -274,12 +274,12 @@ test.describe("empty values toast", () => {
 
 test.describe("lower limit smaller than upper limit", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:8100/tabs/tab1");
+    await page.goto("http://localhost:8100/speedArithmetic");
   });
-  test("addition and multipliation", async ({ page }) => {
+  test("addition and multiplication", async ({ page }) => {
     const operations = ["Addition", "Multiplication"];
     let inputsList;
-    for (let operation of operations) {
+    for (const operation of operations) {
       await page.getByTestId(`open-${operation.toLowerCase()}-options`).click();
 
       inputsList = await page
@@ -305,7 +305,7 @@ test.describe("lower limit smaller than upper limit", () => {
   test("subtraction and division", async ({ page }) => {
     const operations = ["Subtraction", "Division"];
     let inputsList;
-    for (let operation of operations) {
+    for (const operation of operations) {
       await page.getByTestId(`open-${operation.toLowerCase()}-options`).click();
 
       await page.getByTestId(/^same-as.*/).click();
@@ -333,13 +333,13 @@ test.describe("lower limit smaller than upper limit", () => {
 });
 
 test("at least one operation selected", async ({ page }) => {
-  await page.goto("http://localhost:8100/tabs/tab1");
+  await page.goto("http://localhost:8100/speedArithmetic");
 
   const checkboxList = await page.getByTestId(/.*-check$/).all();
 
   expect(checkboxList).toHaveLength(4);
 
-  for (let checkbox of checkboxList) {
+  for (const checkbox of checkboxList) {
     await checkbox.click();
   }
 
@@ -348,4 +348,30 @@ test("at least one operation selected", async ({ page }) => {
   await expect(
     page.getByText("At least one operation must be selected")
   ).toBeVisible();
+});
+
+test("divisor can't be zero", async ({ page }) => {
+  await page.goto("http://localhost:8100/speedArithmetic");
+
+  await page.getByTestId("open-division-options").click();
+
+  await page.getByTestId(/^same-as.*/).click();
+
+  const inputsList = await page
+    .getByTestId("ranges-input")
+    .locator("input")
+    .all();
+
+  await inputsList[2].fill("0");
+  await page.getByRole("button", { name: "ok" }).click();
+  await expect(page.getByText("Divisor can't be zero")).toBeVisible();
+  await inputsList[2].fill("4");
+  await inputsList[3].fill("0");
+  await page.getByRole("button", { name: "ok" }).click();
+  await expect(page.getByText("Divisor can't be zero")).toBeVisible();
+
+  await inputsList[3].fill("4");
+
+  await page.getByRole("button", { name: "ok" }).click();
+  await expect(page.getByText("ok")).toHaveCount(0);
 });

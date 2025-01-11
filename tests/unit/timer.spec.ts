@@ -57,5 +57,9 @@ describe("countdown", () => {
     timer.restart();
 
     expect(timer.getTime().value).toBe(3);
+
+    vi.advanceTimersByTime(1000);
+
+    expect(timer.getTime().value).toBe(2);
   });
 });

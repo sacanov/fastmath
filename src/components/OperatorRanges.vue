@@ -16,20 +16,20 @@ const firstUpper = ref();
 const secondLower = ref();
 const secondUpper = ref();
 
-const filter = (ev: string | undefined | null, arg: string) => {
+const filter = (ev: string | undefined | null, src: string) => {
   if (ev) {
     const filtered = ev.replace(/[^0-9]+/g, "");
 
-    if (arg == "firstLower" && firstLower) {
+    if (src === "firstLower" && firstLower) {
       firstLower.value.$el.value = filtered;
       ranges.firstOperand.lowerBound = Number(filtered);
-    } else if (arg == "firstUpper" && firstUpper) {
+    } else if (src === "firstUpper" && firstUpper) {
       firstUpper.value.$el.value = filtered;
       ranges.firstOperand.upperBound = Number(filtered);
-    } else if (arg == "secondLower" && secondLower) {
+    } else if (src === "secondLower" && secondLower) {
       secondLower.value.$el.value = filtered;
       ranges.secondOperand.lowerBound = Number(filtered);
-    } else if (arg == "secondUpper" && secondLower) {
+    } else if (src === "secondUpper" && secondLower) {
       secondUpper.value.$el.value = filtered;
       ranges.secondOperand.upperBound = Number(filtered);
     }
@@ -91,9 +91,6 @@ const filter = (ev: string | undefined | null, arg: string) => {
 </template>
 
 <style scoped>
-.disabled {
-  opacity: 0.3;
-}
 .inline {
   display: flex;
   align-items: center;

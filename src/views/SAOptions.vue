@@ -1,17 +1,10 @@
-<!-- ToDo
-if empty take as default, take highest as highest
-
-visual testing?
-
-fractions gamemode? dino clone, climb rope
-
-tests-->
-
 <script setup lang="ts">
-import { useGameSettingsStore } from "@/stores/gameSettings";
+import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
 import { storeToRefs } from "pinia";
 import OperatorOptions from "@/components/OperatorOptions.vue";
 import OperatorRanges from "@/components/OperatorRanges.vue";
+import OptionsHeader from "@/components/OptionsHeader.vue";
+import QuitButton from "@/components/QuitButton.vue";
 
 import {
   IonButton,
@@ -26,8 +19,9 @@ import {
 } from "@ionic/vue";
 import { ref } from "vue";
 import router from "@/router";
+import { Operation } from "@/types/problem";
 
-const store = useGameSettingsStore();
+const store = useSAGameSettingsStore();
 
 const {
   addition,
@@ -54,100 +48,109 @@ const multiplicationDecimalsInput = ref();
 const divisionDecimalsInput = ref();
 const durationInput = ref();
 
-const filter = (value: string | undefined | null, arg: string) => {
+const filter = (value: string | undefined | null, src: string) => {
   if (value) {
     const filtered = value.replace(/[^0-9]+/g, "");
 
-    if (arg == "addition" && additionDecimalsInput != undefined) {
+    if (src == "addition" && additionDecimalsInput.value != undefined) {
       additionDecimalsInput.value.$el.value = filtered;
       additionDecimalPlaces.value = Number(filtered);
-    } else if (arg == "subtraction" && subtractionDecimalsInput != undefined) {
+    } else if (
+      src == "subtraction" &&
+      subtractionDecimalsInput.value != undefined
+    ) {
       subtractionDecimalsInput.value.$el.value = filtered;
       subtractionDecimalPlaces.value = Number(filtered);
     } else if (
-      arg == "multiplication" &&
-      multiplicationDecimalsInput != undefined
+      src == "multiplication" &&
+      multiplicationDecimalsInput.value != undefined
     ) {
       multiplicationDecimalsInput.value.$el.value = filtered;
       multiplicationDecimalPlaces.value = Number(filtered);
-    } else if (arg == "division" && divisionDecimalsInput != undefined) {
+    } else if (src == "division" && divisionDecimalsInput.value != undefined) {
       divisionDecimalsInput.value.$el.value = filtered;
       divisionDecimalPlaces.value = Number(filtered);
-    } else if (arg == "duration" && durationInput != undefined) {
+    } else if (src == "duration" && durationInput.value != undefined) {
       durationInput.value.$el.value = filtered;
       duration.value = Number(filtered);
     }
   }
 };
 
-const isAdditionOpen = ref(false);
-
-const isSubtractionOpen = ref(false);
-
-const isMultiplicationOpen = ref(false);
-
-const isDivisionOpen = ref(false);
-
 const isEmptyWarningOpen = ref(false);
 const isBoundsWarningOpen = ref(false);
 const isStartGameWarningOpen = ref(false);
+const isDivisionByZeroWarningOpen = ref(false);
 
-const validateOptions = (ev: string) => {
-  let inputs: number[];
-  switch (ev) {
-    case "Addition":
-      inputs = [
+const validateOptions = (
+  operation: Operation
+): "divisionByZero" | "emptyInput" | "invalidBounds" | "valid" => {
+  const validate = (inputs: number[]) => {
+    if (inputs.some((el) => String(el).length == 0)) {
+      return "emptyInput";
+    } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
+      return "invalidBounds";
+    } else {
+      return "valid";
+    }
+  };
+  switch (operation) {
+    case "addition": {
+      const inputs = [
         ...Object.values(additionOptions.value.firstOperand),
         ...Object.values(additionOptions.value.secondOperand),
         additionDecimalPlaces.value,
       ];
-      if (inputs.some((el) => String(el).length == 0)) {
-        isEmptyWarningOpen.value = true;
-      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
-        isBoundsWarningOpen.value = true;
-      } else {
-        isAdditionOpen.value = false;
-      }
-      break;
-    case "Subtraction":
-      inputs = [
+      return validate(inputs);
+    }
+    case "subtraction": {
+      const inputs = [
         ...Object.values(subtractionOptions.value.firstOperand),
         ...Object.values(subtractionOptions.value.secondOperand),
         additionDecimalPlaces.value,
       ];
-      if (inputs.some((el) => String(el).length == 0)) {
-        isEmptyWarningOpen.value = true;
-      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
-        isBoundsWarningOpen.value = true;
-      } else {
-        isSubtractionOpen.value = false;
-      }
-    case "Multiplication":
-      inputs = [
+      return validate(inputs);
+    }
+    case "multiplication": {
+      const inputs = [
         ...Object.values(multiplicationOptions.value.firstOperand),
         ...Object.values(multiplicationOptions.value.secondOperand),
         additionDecimalPlaces.value,
       ];
-      if (inputs.some((el) => String(el).length == 0)) {
-        isEmptyWarningOpen.value = true;
-      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
-        isBoundsWarningOpen.value = true;
-      } else {
-        isMultiplicationOpen.value = false;
-      }
-    case "Division":
-      inputs = [
+      return validate(inputs);
+    }
+    case "division": {
+      const inputs = [
         ...Object.values(divisionOptions.value.firstOperand),
         ...Object.values(divisionOptions.value.secondOperand),
         additionDecimalPlaces.value,
       ];
-      if (inputs.some((el) => String(el).length == 0)) {
-        isEmptyWarningOpen.value = true;
-      } else if (inputs[0] > inputs[1] || inputs[2] > inputs[3]) {
-        isBoundsWarningOpen.value = true;
+      if (
+        Object.values(divisionOptions.value.secondOperand).some((el) => el == 0)
+      ) {
+        return "divisionByZero";
       } else {
-        isDivisionOpen.value = false;
+        return validate(inputs);
       }
+    }
+  }
+};
+
+const showToasts = (
+  validity: "divisionByZero" | "emptyInput" | "invalidBounds" | "valid"
+) => {
+  switch (validity) {
+    case "divisionByZero": {
+      isDivisionByZeroWarningOpen.value = true;
+      break;
+    }
+    case "emptyInput": {
+      isEmptyWarningOpen.value = true;
+      break;
+    }
+    case "invalidBounds": {
+      isBoundsWarningOpen.value = true;
+    }
   }
 };
 
@@ -158,7 +161,7 @@ const startGame = () => {
     isStartGameWarningOpen.value = true;
   } else {
     store.playing = true;
-    router.push("/game");
+    router.push("/game/speedArithmetic");
   }
 };
 </script>
@@ -166,19 +169,11 @@ const startGame = () => {
 <template>
   <IonPage>
     <ion-content>
-      <div class="description">
-        <h1>Arithmetic Game</h1>
-        <p>
-          Try to solve as many problems as you can in a given amount of time.
-        </p>
-      </div>
+      <quit-button @quit="router.push('/')"></quit-button>
 
-      <div class="options-header">
-        <h3>Options</h3>
-        <IonButton fill="outline" size="small" @click="store.$reset"
-          >Reset</IonButton
-        >
-      </div>
+      <options-header title="Speed Arithmetic" @reset="store.$reset">
+        Try to solve as many problems as you can in a given amount of time.
+      </options-header>
 
       <IonGrid>
         <IonRow>
@@ -186,14 +181,13 @@ const startGame = () => {
             <OperatorOptions
               name="Addition"
               modal-height="low"
-              :isOpen="isAdditionOpen"
               v-model:checked="addition"
               @reset="store.additionReset"
-              @dismiss="validateOptions($event)"
-              @open-modal="isAdditionOpen = true"
+              :can-dismiss="validateOptions('addition') === 'valid'"
+              @dismiss="showToasts(validateOptions('addition'))"
             >
               <template #card-content>
-                <p>
+                <p class="center-text">
                   Range: ({{ additionOptions.firstOperand.lowerBound }} to
                   {{ additionOptions.firstOperand.upperBound }}) + ({{
                     additionOptions.secondOperand.lowerBound
@@ -228,17 +222,16 @@ const startGame = () => {
               name="Subtraction"
               v-model:checked="subtraction"
               modal-height="high"
-              :is-open="isSubtractionOpen"
               @reset="store.subtractionReset"
-              @dismiss="validateOptions($event)"
-              @open-modal="isSubtractionOpen = true"
+              :can-dismiss="validateOptions('subtraction') === 'valid'"
+              @dismiss="showToasts(validateOptions('subtraction'))"
             >
               <template #card-content>
                 <p v-if="sameAsAddition" class="center-text">
                   Addition problems in reverse
                 </p>
                 <template v-else>
-                  <p>
+                  <p class="center-text">
                     Range: ({{ subtractionOptions.firstOperand.lowerBound }} to
                     {{ subtractionOptions.firstOperand.upperBound }}) - ({{
                       subtractionOptions.secondOperand.lowerBound
@@ -300,13 +293,12 @@ const startGame = () => {
               name="Multiplication"
               v-model:checked="multiplication"
               modal-height="low"
-              :is-open="isMultiplicationOpen"
               @reset="store.multiplicationReset"
-              @dismiss="validateOptions($event)"
-              @open-modal="isMultiplicationOpen = true"
+              :can-dismiss="validateOptions('multiplication') === 'valid'"
+              @dismiss="showToasts(validateOptions('multiplication'))"
             >
               <template #card-content>
-                <p>
+                <p class="center-text">
                   Range: ({{ multiplicationOptions.firstOperand.lowerBound }} to
                   {{ multiplicationOptions.firstOperand.upperBound }}) x ({{
                     multiplicationOptions.secondOperand.lowerBound
@@ -343,17 +335,16 @@ const startGame = () => {
               name="Division"
               v-model:checked="division"
               modal-height="high"
-              :is-open="isDivisionOpen"
               @reset="store.divisionReset"
-              @dismiss="validateOptions($event)"
-              @open-modal="isDivisionOpen = true"
+              :can-dismiss="validateOptions('division') === 'valid'"
+              @dismiss="showToasts(validateOptions('division'))"
             >
               <template #card-content>
                 <p v-if="sameAsMultiplication" class="center-text">
                   Multiplication problems in reverse
                 </p>
                 <template v-else>
-                  <p>
+                  <p class="center-text">
                     Range: ({{ divisionOptions.firstOperand.lowerBound }} to
                     {{ divisionOptions.firstOperand.upperBound }}) / ({{
                       divisionOptions.secondOperand.lowerBound
@@ -437,6 +428,13 @@ const startGame = () => {
         @didDismiss="isStartGameWarningOpen = false"
         class="warning"
       ></ion-toast>
+      <ion-toast
+        :isOpen="isDivisionByZeroWarningOpen"
+        :duration="5000"
+        message="Divisor can't be zero"
+        @didDismiss="isStartGameWarningOpen = false"
+        class="warning"
+      ></ion-toast>
     </ion-content>
   </IonPage>
 </template>
@@ -453,15 +451,7 @@ const startGame = () => {
 .decimal-places ion-input {
   max-width: 5ch;
   text-align: center;
-}
-.description {
-  margin: auto 1em;
-}
-.description h1 {
-  color: var(--ion-color-primary-shade);
-}
-.disabled {
-  opacity: 0.3;
+  --background: var(--secondary-container-variant);
 }
 .duration {
   display: flex;
@@ -476,31 +466,6 @@ const startGame = () => {
   min-width: 3ch;
   --background: var(--container-background);
 }
-.inline-checkbox {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-}
-.inline-checkbox ion-checkbox {
-  margin-left: 1em;
-}
-.ion-page {
-  align-items: center;
-}
-.options-header {
-  margin: auto 1em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.options-header h3 {
-  margin: auto 0;
-  color: var(--ion-color-primary-shade);
-}
-.options-header ion-button {
-  --padding-top: 0px;
-  --padding-bottom: 0px;
-}
 .start-game {
   display: flex;
   justify-content: center;
@@ -512,10 +477,7 @@ const startGame = () => {
 }
 ion-content {
   max-width: 1500px;
-  margin: auto;
+  align-self: center;
   --padding-top: 1em;
-}
-.decimal-places ion-input {
-  --background: var(--secondary-container-variant);
 }
 </style>

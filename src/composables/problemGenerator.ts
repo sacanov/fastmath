@@ -1,38 +1,67 @@
 // ToDo
 
-// create with answers, use OperatorOptions (in reverse, decimal places)
+//
 
 import { Range } from "@/types/ranges";
 import { PiniaStore } from "@/types/piniaStore";
-import { Operation, Problem } from "@/types/problem";
-import { useGameSettingsStore } from "@/stores/gameSettings";
+import { Operation, SAProblem, FractionProblem } from "@/types/problem";
+import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
+import { useFractionsStore } from "@/stores/FractionsSettings";
+import { Fraction } from "./fraction";
 
-export class ProblemGenerator {
-  private operations: Operation[];
-  private store: PiniaStore<typeof useGameSettingsStore>;
+export abstract class ProblemGenerator {
+  protected operations: Operation[];
+  abstract store:
+    | PiniaStore<typeof useSAGameSettingsStore>
+    | PiniaStore<typeof useFractionsStore>;
 
-  constructor(store: PiniaStore<typeof useGameSettingsStore>) {
+  constructor(
+    store:
+      | PiniaStore<typeof useSAGameSettingsStore>
+      | PiniaStore<typeof useFractionsStore>
+  ) {
     this.operations = [];
-    this.store = store;
-    this.createOperationsList();
+
+    this.createOperationsList(store);
   }
 
-  private createOperationsList = () => {
-    if (this.store.addition) {
+  private createOperationsList = (
+    store:
+      | PiniaStore<typeof useSAGameSettingsStore>
+      | PiniaStore<typeof useFractionsStore>
+  ) => {
+    if (store.addition) {
       this.operations.push("addition");
     }
-    if (this.store.subtraction) {
+    if (store.subtraction) {
       this.operations.push("subtraction");
     }
-    if (this.store.multiplication) {
+    if (store.multiplication) {
       this.operations.push("multiplication");
     }
-    if (this.store.division) {
+    if (store.division) {
       this.operations.push("division");
     }
   };
 
-  generateProblem(): Problem {
+  protected generateNumber(range: Range, decimalPlaces: number): number {
+    const randomInRange =
+      Math.random() * (range.upperBound - range.lowerBound) + range.lowerBound;
+    return Number(randomInRange.toFixed(decimalPlaces));
+  }
+
+  abstract generateProblem(): SAProblem | FractionProblem;
+}
+
+export class SAProblemGenerator extends ProblemGenerator {
+  store: PiniaStore<typeof useSAGameSettingsStore>;
+
+  constructor(store: PiniaStore<typeof useSAGameSettingsStore>) {
+    super(store);
+    this.store = store;
+  }
+
+  generateProblem(): SAProblem {
     const operation: Operation =
       this.operations[~~(Math.random() * this.operations.length)];
 
@@ -95,12 +124,7 @@ export class ProblemGenerator {
           };
         } else {
           const firstNumber = this.generateNumber(
-            {
-              upperBound:
-                this.store.subtractionOptions.firstOperand.upperBound -
-                this.store.subtractionOptions.secondOperand.upperBound,
-              lowerBound: this.store.subtractionOptions.firstOperand.lowerBound,
-            },
+            this.store.subtractionOptions.firstOperand,
             this.store.subtractionDecimalPlaces
           );
           const secondNumber = this.generateNumber(
@@ -128,10 +152,32 @@ export class ProblemGenerator {
 
       case "division": {
         if (this.store.sameAsMultiplication) {
-          const firstNumber = this.generateNumber(
-            this.store.multiplicationOptions.firstOperand,
-            this.store.multiplicationDecimalPlaces
-          );
+          let firstNumber;
+          if (
+            this.store.multiplicationOptions.firstOperand.lowerBound == 0 ||
+            this.store.multiplicationOptions.firstOperand.upperBound == 0
+          ) {
+            const lowerBound =
+              this.store.multiplicationOptions.firstOperand.lowerBound == 0
+                ? 1
+                : this.store.multiplicationOptions.firstOperand.lowerBound;
+            const upperBound =
+              this.store.multiplicationOptions.firstOperand.upperBound == 0
+                ? 1
+                : this.store.multiplicationOptions.firstOperand.upperBound;
+            firstNumber = this.generateNumber(
+              { lowerBound: lowerBound, upperBound: upperBound },
+              this.store.multiplicationDecimalPlaces
+            );
+
+            console.log(lowerBound, upperBound, firstNumber);
+          } else {
+            firstNumber = this.generateNumber(
+              this.store.multiplicationOptions.firstOperand,
+              this.store.multiplicationDecimalPlaces
+            );
+          }
+
           const secondNumber = this.generateNumber(
             this.store.multiplicationOptions.secondOperand,
             this.store.multiplicationDecimalPlaces
@@ -153,47 +199,230 @@ export class ProblemGenerator {
           const numberOfDecimals2 =
             this.store.divisionDecimalPlaces - numberOfDecimals1;
 
-          const upperBound = Number(
+          const upperBound1 = Number(
             (
               this.store.divisionOptions.firstOperand.upperBound /
-              this.store.divisionOptions.secondOperand.lowerBound
+              this.store.divisionOptions.secondOperand.upperBound
             ).toFixed(this.store.divisionDecimalPlaces)
           );
-          const lowerBound = Number(
+          const lowerBound1 = Number(
             (
               this.store.divisionOptions.firstOperand.lowerBound /
-              this.store.divisionOptions.secondOperand.upperBound
+              this.store.divisionOptions.secondOperand.lowerBound
             ).toFixed(this.store.divisionDecimalPlaces)
           );
           const firstNumber = this.generateNumber(
             {
-              lowerBound: lowerBound,
-              upperBound: upperBound,
+              lowerBound: lowerBound1,
+              upperBound: upperBound1,
             },
             numberOfDecimals1
           );
 
+          const upperBound2 = Number(
+            (
+              this.store.divisionOptions.firstOperand.upperBound / firstNumber
+            ).toFixed(this.store.divisionDecimalPlaces)
+          );
+          const lowerBound2 = Number(
+            (
+              this.store.divisionOptions.firstOperand.lowerBound / firstNumber
+            ).toFixed(this.store.divisionDecimalPlaces)
+          );
+
           const secondNumber = this.generateNumber(
-            this.store.divisionOptions.secondOperand,
+            { lowerBound: lowerBound2, upperBound: upperBound2 },
             numberOfDecimals2
           );
 
+          console.log(upperBound1, lowerBound1, firstNumber, secondNumber);
           const result = firstNumber * secondNumber;
 
           return {
             operation: "/",
             firstOperand: result,
-            secondOperand: firstNumber,
-            solution: secondNumber,
+            secondOperand: secondNumber,
+            solution: firstNumber,
           };
         }
       }
     }
   }
+}
 
-  private generateNumber(range: Range, decimalPlaces: number): number {
-    const randomInRange =
-      Math.random() * (range.upperBound - range.lowerBound) + range.lowerBound;
-    return Number(randomInRange.toFixed(decimalPlaces));
+export class FractionProblemGenerator extends ProblemGenerator {
+  store: PiniaStore<typeof useFractionsStore>;
+
+  constructor(store: PiniaStore<typeof useFractionsStore>) {
+    super(store);
+    this.store = store;
+  }
+
+  generateProblem(): FractionProblem {
+    const operation: Operation =
+      this.operations[~~(Math.random() * this.operations.length)];
+
+    switch (operation) {
+      case "addition": {
+        return this.generateAdditionProblem();
+      }
+      case "subtraction": {
+        if (this.store.sameAsAddition) {
+          const problem = this.generateAdditionProblem();
+          return {
+            operation: "-",
+            firstOperand: problem.solution,
+            secondOperand: problem.firstOperand,
+            solution: problem.secondOperand,
+          };
+        } else {
+          const firstDividend = this.generateNumber(
+            this.store.subtractionRanges.firstOperand.dividend,
+            0
+          );
+
+          const firstDivisor = this.generateNumber(
+            this.store.subtractionRanges.firstOperand.divisor,
+            0
+          );
+          const secondDividend = this.generateNumber(
+            this.store.subtractionRanges.secondOperand.dividend,
+            0
+          );
+          const secondDivisor = this.generateNumber(
+            this.store.subtractionRanges.secondOperand.divisor,
+            0
+          );
+
+          const solutionDividend =
+            firstDividend * secondDivisor - firstDivisor * secondDividend;
+
+          const solutionDivisor = firstDivisor * secondDivisor;
+
+          if (
+            !this.store.negativeResults &&
+            firstDividend / firstDivisor < secondDividend / secondDivisor
+          ) {
+            return {
+              operation: "-",
+              firstOperand: new Fraction(secondDividend, secondDivisor),
+              secondOperand: new Fraction(firstDividend, firstDivisor),
+              solution: new Fraction(
+                -solutionDividend,
+                solutionDivisor
+              ).toIrreducible(),
+            };
+          }
+
+          return {
+            operation: "-",
+            firstOperand: new Fraction(firstDividend, firstDivisor),
+            secondOperand: new Fraction(secondDividend, secondDivisor),
+            solution: new Fraction(
+              solutionDividend,
+              solutionDivisor
+            ).toIrreducible(),
+          };
+        }
+      }
+      case "multiplication": {
+        const firstDividend = this.generateNumber(
+          this.store.multiplicationRanges.firstOperand.dividend,
+          0
+        );
+
+        const firstDivisor = this.generateNumber(
+          this.store.multiplicationRanges.firstOperand.divisor,
+          0
+        );
+        const secondDividend = this.generateNumber(
+          this.store.multiplicationRanges.secondOperand.dividend,
+          0
+        );
+        const secondDivisor = this.generateNumber(
+          this.store.multiplicationRanges.secondOperand.divisor,
+          0
+        );
+
+        const solutionDividend = firstDividend * secondDividend;
+
+        const solutionDivisor = firstDivisor * secondDivisor;
+
+        return {
+          operation: "x",
+          firstOperand: new Fraction(firstDividend, firstDivisor),
+          secondOperand: new Fraction(secondDividend, secondDivisor),
+          solution: new Fraction(
+            solutionDividend,
+            solutionDivisor
+          ).toIrreducible(),
+        };
+      }
+      case "division": {
+        const firstDividend = this.generateNumber(
+          this.store.divisionRanges.firstOperand.dividend,
+          0
+        );
+
+        const firstDivisor = this.generateNumber(
+          this.store.divisionRanges.firstOperand.divisor,
+          0
+        );
+        const secondDividend = this.generateNumber(
+          this.store.divisionRanges.secondOperand.dividend,
+          0
+        );
+        const secondDivisor = this.generateNumber(
+          this.store.divisionRanges.secondOperand.divisor,
+          0
+        );
+
+        const solutionDividend = firstDividend * secondDivisor;
+
+        const solutionDivisor = firstDivisor * secondDividend;
+
+        return {
+          operation: "/",
+          firstOperand: new Fraction(firstDividend, firstDivisor),
+          secondOperand: new Fraction(secondDividend, secondDivisor),
+          solution: new Fraction(
+            solutionDividend,
+            solutionDivisor
+          ).toIrreducible(),
+        };
+      }
+    }
+  }
+
+  private generateAdditionProblem(): FractionProblem {
+    const firstDividend = this.generateNumber(
+      this.store.additionRanges.firstOperand.dividend,
+      0
+    );
+
+    const firstDivisor = this.generateNumber(
+      this.store.additionRanges.firstOperand.divisor,
+      0
+    );
+    const secondDividend = this.generateNumber(
+      this.store.additionRanges.secondOperand.dividend,
+      0
+    );
+    const secondDivisor = this.generateNumber(
+      this.store.additionRanges.secondOperand.divisor,
+      0
+    );
+
+    const solutionDividend =
+      firstDividend * secondDivisor + firstDivisor * secondDividend;
+
+    const solutionDivisor = firstDivisor * secondDivisor;
+
+    return {
+      operation: "+",
+      firstOperand: new Fraction(firstDividend, firstDivisor),
+      secondOperand: new Fraction(secondDividend, secondDivisor),
+      solution: new Fraction(solutionDividend, solutionDivisor).toIrreducible(),
+    };
   }
 }
