@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { IonInput } from "@ionic/vue";
 import FractionEl from "./FractionEl.vue";
 import ScreenKeyboard from "./ScreenKeyboard.vue";
+import { Fraction } from "@/composables/fraction";
 
 const props = defineProps<{
   game: Game;
@@ -15,22 +16,37 @@ const inputEl = ref();
 
 const input = (value: string) => {
   // validate input
-  const filtered = value.replace(/[^0-9-]+/g, "");
+
+  const filtered =
+    props.game instanceof FractionGame
+      ? value.replace(/[^0-9-/]+/g, "")
+      : value.replace(/[^0-9-.]+/g, "");
   inputValue.value = filtered;
   if (inputEl.value) {
     inputEl.value.$el.value = filtered;
-    if (props.game.verifyAnswer(Number(filtered))) {
+
+    if (verifyAnswer(filtered)) {
       inputEl.value.$el.value = "";
       inputValue.value = "";
     }
   }
 };
 
-const keyPressed = (n: string) => {
-  if (n === "-1") {
-    input(inputValue.value.slice(0, -1));
+const verifyAnswer = (str: string): boolean => {
+  if (props.game instanceof FractionGame) {
+    return props.game.verifyAnswer(Fraction.fromString(str));
   } else {
-    input(inputValue.value + n);
+    return props.game.verifyAnswer(Number(str));
+  }
+};
+
+const keyPressed = (key: string) => {
+  if (key === "CE") {
+    input(inputValue.value.slice(0, -1));
+  } else if (key == "AC") {
+    input("");
+  } else {
+    input(inputValue.value + key);
   }
 };
 

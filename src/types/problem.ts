@@ -19,3 +19,8 @@ export interface FractionProblem {
   secondOperand: Fraction;
   solution: Fraction;
 }
+
+export interface FAProblem {
+  digits: number[];
+  solution: number;
+}

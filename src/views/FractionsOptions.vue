@@ -169,7 +169,8 @@ const filter = (value: string | undefined | null, src: string) => {
       <quit-button @quit="router.push('/')"></quit-button>
 
       <options-header title="Fractions" @reset="store.$reset">
-        Solve fraction arithmetic problems as fast as posible
+        Solve fraction arithmetic problems as fast as posible, input solutions
+        as x/y, only fractions in irreducible form will be scored as correct.
       </options-header>
 
       <ion-grid>
@@ -257,7 +258,7 @@ const filter = (value: string | undefined | null, src: string) => {
                         }}
                       </template>
                     </fraction-el>
-                    +
+                    -
                     <fraction-el :width="5">
                       <template #dividend>
                         {{
@@ -331,7 +332,7 @@ const filter = (value: string | undefined | null, src: string) => {
                       }}
                     </template>
                   </fraction-el>
-                  +
+                  x
                   <fraction-el :width="5">
                     <template #dividend>
                       {{
@@ -385,7 +386,7 @@ const filter = (value: string | undefined | null, src: string) => {
                       }}
                     </template>
                   </fraction-el>
-                  +
+                  /
                   <fraction-el :width="5">
                     <template #dividend>
                       {{

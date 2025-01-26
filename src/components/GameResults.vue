@@ -3,8 +3,9 @@ import { FractionGame, Game, SAGame } from "@/composables/game";
 import { IonButton, IonIcon } from "@ionic/vue";
 import { homeOutline, refresh } from "ionicons/icons";
 import FractionEl from "./FractionEl.vue";
+import { FAGame } from "@/composables/faGame";
 
-defineProps<{ game: Game }>();
+defineProps<{ game: Game | FAGame }>();
 </script>
 
 <template>
@@ -51,7 +52,11 @@ defineProps<{ game: Game }>();
             </template>
           </fraction-el>
         </p>
+        <p v-else-if="game instanceof FAGame">
+          {{ game.numbers.join("+") }} = {{ game.solution }}
+        </p>
       </div>
+
       <div class="buttons">
         <ion-button @click="$emit('play-again')"
           ><ion-icon :icon="refresh"></ion-icon

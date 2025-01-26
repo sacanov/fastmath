@@ -4,21 +4,31 @@
 
 import { Range } from "@/types/ranges";
 import { PiniaStore } from "@/types/piniaStore";
-import { Operation, SAProblem, FractionProblem } from "@/types/problem";
+import {
+  Operation,
+  SAProblem,
+  FractionProblem,
+  FAProblem,
+} from "@/types/problem";
 import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
 import { useFractionsStore } from "@/stores/FractionsSettings";
 import { Fraction } from "./fraction";
+import { useFAGameSettingsStore } from "@/stores/FAGameSettings";
 
 export abstract class ProblemGenerator {
   protected operations: Operation[];
-  abstract store:
-    | PiniaStore<typeof useSAGameSettingsStore>
-    | PiniaStore<typeof useFractionsStore>;
+  abstract store: PiniaStore<
+    | typeof useSAGameSettingsStore
+    | typeof useFractionsStore
+    | typeof useFAGameSettingsStore
+  >;
 
   constructor(
-    store:
-      | PiniaStore<typeof useSAGameSettingsStore>
-      | PiniaStore<typeof useFractionsStore>
+    store: PiniaStore<
+      | typeof useSAGameSettingsStore
+      | typeof useFractionsStore
+      | typeof useFAGameSettingsStore
+    >
   ) {
     this.operations = [];
 
@@ -50,7 +60,7 @@ export abstract class ProblemGenerator {
     return Number(randomInRange.toFixed(decimalPlaces));
   }
 
-  abstract generateProblem(): SAProblem | FractionProblem;
+  abstract generateProblem(): SAProblem | FractionProblem | FAProblem;
 }
 
 export class SAProblemGenerator extends ProblemGenerator {
@@ -77,11 +87,13 @@ export class SAProblemGenerator extends ProblemGenerator {
           this.store.additionDecimalPlaces
         );
 
+        const solution = firstOperand + secondOperand;
+
         return {
           operation: "+",
           firstOperand: firstOperand,
           secondOperand: secondOperand,
-          solution: firstOperand + secondOperand,
+          solution: Number(solution.toFixed(this.store.additionDecimalPlaces)),
         };
       }
       case "multiplication": {
@@ -95,11 +107,15 @@ export class SAProblemGenerator extends ProblemGenerator {
           this.store.multiplicationDecimalPlaces
         );
 
+        const solution = firstOperand * secondOperand;
+
         return {
           operation: "x",
           firstOperand: firstOperand,
           secondOperand: secondOperand,
-          solution: firstOperand * secondOperand,
+          solution: Number(
+            solution.toFixed(this.store.multiplicationDecimalPlaces)
+          ),
         };
       }
 
@@ -118,7 +134,9 @@ export class SAProblemGenerator extends ProblemGenerator {
 
           return {
             operation: "-",
-            firstOperand: result,
+            firstOperand: Number(
+              result.toFixed(this.store.subtractionDecimalPlaces)
+            ),
             secondOperand: secondNumber,
             solution: firstNumber,
           };
@@ -137,7 +155,11 @@ export class SAProblemGenerator extends ProblemGenerator {
               operation: "-",
               firstOperand: secondNumber,
               secondOperand: firstNumber,
-              solution: secondNumber - firstNumber,
+              solution: Number(
+                (secondNumber - firstNumber).toFixed(
+                  this.store.subtractionDecimalPlaces
+                )
+              ),
             };
           }
 
@@ -145,7 +167,11 @@ export class SAProblemGenerator extends ProblemGenerator {
             operation: "-",
             firstOperand: firstNumber,
             secondOperand: secondNumber,
-            solution: firstNumber - secondNumber,
+            solution: Number(
+              (firstNumber - secondNumber).toFixed(
+                this.store.subtractionDecimalPlaces
+              )
+            ),
           };
         }
       }
@@ -187,7 +213,9 @@ export class SAProblemGenerator extends ProblemGenerator {
 
           return {
             operation: "/",
-            firstOperand: result,
+            firstOperand: Number(
+              result.toFixed(this.store.divisionDecimalPlaces)
+            ),
             secondOperand: firstNumber,
             solution: secondNumber,
           };
@@ -235,12 +263,13 @@ export class SAProblemGenerator extends ProblemGenerator {
             numberOfDecimals2
           );
 
-          console.log(upperBound1, lowerBound1, firstNumber, secondNumber);
           const result = firstNumber * secondNumber;
 
           return {
             operation: "/",
-            firstOperand: result,
+            firstOperand: Number(
+              result.toFixed(this.store.divisionDecimalPlaces)
+            ),
             secondOperand: secondNumber,
             solution: firstNumber,
           };
@@ -423,6 +452,35 @@ export class FractionProblemGenerator extends ProblemGenerator {
       firstOperand: new Fraction(firstDividend, firstDivisor),
       secondOperand: new Fraction(secondDividend, secondDivisor),
       solution: new Fraction(solutionDividend, solutionDivisor).toIrreducible(),
+    };
+  }
+}
+
+export class FAProblemGenerator extends ProblemGenerator {
+  store: PiniaStore<typeof useFAGameSettingsStore>;
+
+  constructor(store: PiniaStore<typeof useFAGameSettingsStore>) {
+    super(store);
+    this.store = store;
+  }
+
+  generateProblem(): FAProblem {
+    const numbers = [];
+
+    for (let i = 0; i < this.store.numberOfOperands; i++) {
+      numbers.push(
+        this.generateNumber(
+          {
+            lowerBound: 1 + 10 ** (this.store.numberOfDigits - 1),
+            upperBound: this.store.numberOfDigits * 10 - 1,
+          },
+          0
+        )
+      );
+    }
+    return {
+      digits: numbers,
+      solution: numbers.reduce((x, y) => x + y),
     };
   }
 }

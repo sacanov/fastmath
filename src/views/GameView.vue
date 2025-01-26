@@ -8,13 +8,12 @@ import { nextTick, onMounted, Ref, ref, watch } from "vue";
 import { Timer } from "@/composables/timer";
 import { isPlatform, IonContent, IonPage } from "@ionic/vue";
 import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
+import { useFractionsStore } from "@/stores/FractionsSettings";
 import { FractionGame, Game, SAGame } from "@/composables/game";
 import GameResults from "@/components/GameResults.vue";
 import GameToolbar from "@/components/GameToolbar.vue";
 import PlayingScreen from "@/components/PlayingScreen.vue";
 import router from "@/router";
-
-import { useFractionsStore } from "@/stores/FractionsSettings";
 
 const props = defineProps<{ type: "speedArithmetic" | "fractions" }>();
 
@@ -45,7 +44,6 @@ const startNewGame = () => {
   }
 
   stage.value = "starting";
-  // inputValue.value = "";
   screenEl.value.resetInput();
 };
 
@@ -63,7 +61,6 @@ watch(startingCountdown.getTime(), (newValue) => {
     if (!onMobile) {
       // set focus when app is running on web
       nextTick(() => {
-        // inputEl.value.$el.setFocus();
         screenEl.value.focusInput();
       });
     }

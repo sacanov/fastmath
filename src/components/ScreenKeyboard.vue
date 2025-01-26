@@ -10,6 +10,23 @@ import { backspaceSharp } from "ionicons/icons";
 <template>
   <ion-grid :fixed="true">
     <ion-row>
+      <ion-col
+        ><ion-button expand="block" @click="$emit('key-pressed', 'AC')"
+          >AC</ion-button
+        ></ion-col
+      >
+      <ion-col
+        ><ion-button expand="block" @click="$emit('key-pressed', '-')"
+          >-</ion-button
+        ></ion-col
+      >
+      <ion-col
+        ><ion-button expand="block" @click="$emit('key-pressed', '/')"
+          >/</ion-button
+        ></ion-col
+      >
+    </ion-row>
+    <ion-row>
       <ion-col>
         <ion-button expand="block" @click="$emit('key-pressed', '1')"
           >1</ion-button
@@ -62,8 +79,8 @@ import { backspaceSharp } from "ionicons/icons";
     </ion-row>
     <ion-row>
       <ion-col
-        ><ion-button expand="block" @click="$emit('key-pressed', '-')"
-          >-</ion-button
+        ><ion-button expand="block" @click="$emit('key-pressed', '.')"
+          >.</ion-button
         ></ion-col
       >
       <ion-col
@@ -72,7 +89,7 @@ import { backspaceSharp } from "ionicons/icons";
         ></ion-col
       >
       <ion-col
-        ><ion-button expand="block" @click="$emit('key-pressed', '-1')">
+        ><ion-button expand="block" @click="$emit('key-pressed', 'CE')">
           <ion-icon :icon="backspaceSharp"></ion-icon> </ion-button
       ></ion-col>
     </ion-row>
@@ -86,6 +103,6 @@ ion-grid {
   height: 100%;
 }
 ion-row {
-  height: 25%;
+  height: 20%;
 }
 </style>

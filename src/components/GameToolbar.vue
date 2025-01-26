@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { IonButton, IonCol, IonGrid, IonIcon, IonRow } from "@ionic/vue";
 import { closeSharp, refreshOutline } from "ionicons/icons";
+import { Ref } from "vue";
 
-const props = defineProps(["timeLeft", "score"]);
+const props = defineProps<{ timeLeft?: Ref<number> }>();
 </script>
 
 <template>
   <ion-grid>
     <ion-row class="ion-justify-content-between">
       <ion-col size="5"
-        ><h3>{{ props.timeLeft }}</h3></ion-col
+        ><h3 v-if="props.timeLeft">{{ props.timeLeft }}</h3></ion-col
       >
       <ion-col size="5"
         ><div class="buttons">

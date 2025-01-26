@@ -15,8 +15,9 @@ import router from "@/router";
         <h1>Fractions</h1>
         <p>Speed arithmetic with fractions</p>
       </ion-card>
-      <ion-card>
+      <ion-card :button="true" @click="router.push('/flashArithmetic')">
         <h1>Flash arithmetic</h1>
+        <p>Solve problems with flashing numbers</p>
       </ion-card>
     </ion-content>
   </ion-page>

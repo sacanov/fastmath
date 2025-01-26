@@ -7,7 +7,6 @@
 import { Timer } from "./timer";
 import {
   FractionProblemGenerator,
-  ProblemGenerator,
   SAProblemGenerator,
 } from "./problemGenerator";
 import { PiniaStore } from "@/types/piniaStore";
@@ -19,7 +18,7 @@ import { Fraction } from "./fraction";
 
 export abstract class Game {
   protected timer: Timer;
-  abstract problemGenerator: ProblemGenerator;
+  abstract problemGenerator: SAProblemGenerator | FractionProblemGenerator;
   abstract currentProblem: Ref<SAProblem> | Ref<FractionProblem>;
   protected active: Ref<boolean>;
   protected score: Ref<number>;
@@ -27,9 +26,7 @@ export abstract class Game {
   abstract verifyAnswer(answer: number | Fraction): boolean;
 
   constructor(
-    store:
-      | PiniaStore<typeof useSAGameSettingsStore>
-      | PiniaStore<typeof useFractionsStore>
+    store: PiniaStore<typeof useSAGameSettingsStore | typeof useFractionsStore>
   ) {
     this.timer = new Timer(store.duration);
     this.active = ref(false);
