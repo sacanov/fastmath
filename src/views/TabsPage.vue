@@ -8,12 +8,12 @@
           <ion-label>Play</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <!-- <ion-tab-button tab="tab2" href="/tabs/tab2">
           <ion-icon aria-hidden="true" :icon="school" />
           <ion-label>Learn</ion-label>
-        </ion-tab-button>
+        </ion-tab-button> -->
 
-        <ion-tab-button tab="tab3" href="/tabs/tab3">
+        <ion-tab-button tab="tab3" href="/tabs/settings">
           <ion-icon aria-hidden="true" :icon="options" />
           <ion-label>Settings</ion-label>
         </ion-tab-button>
@@ -32,7 +32,7 @@ import {
   IonPage,
   IonRouterOutlet,
 } from "@ionic/vue";
-import { options, play, school } from "ionicons/icons";
+import { options, play } from "ionicons/icons";
 </script>
 
 <style scoped>

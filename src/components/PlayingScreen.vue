@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { FractionGame, Game, SAGame } from "@/composables/game";
-import { ref } from "vue";
+import { onMounted, Ref, ref } from "vue";
 import { IonInput } from "@ionic/vue";
 import FractionEl from "./FractionEl.vue";
 import ScreenKeyboard from "./ScreenKeyboard.vue";
 import { Fraction } from "@/composables/fraction";
+import { getKeyboardSettings } from "@/composables/preferences";
 
 const props = defineProps<{
   game: Game;
@@ -58,6 +59,17 @@ const resetInput = () => {
   inputValue.value = "";
 };
 
+const height = ref(100);
+const width = ref(100);
+const position: Ref<"left" | "center" | "right"> = ref("center");
+
+onMounted(async () => {
+  const settings = await getKeyboardSettings();
+  height.value = settings.height;
+  width.value = settings.width;
+  position.value = settings.position;
+});
+
 defineExpose({ focusInput, resetInput });
 </script>
 
@@ -104,7 +116,13 @@ defineExpose({ focusInput, resetInput });
     ></ion-input>
   </div>
   <div class="keyboard" v-if="showingKeyboard">
-    <screen-keyboard @key-pressed="(n) => keyPressed(n)"> </screen-keyboard>
+    <screen-keyboard
+      :width="width"
+      :height="height"
+      :position="position"
+      @key-pressed="(n) => keyPressed(n)"
+    >
+    </screen-keyboard>
   </div>
 </template>
 
@@ -128,12 +146,7 @@ h3 {
   justify-content: center;
   align-items: center;
 }
-.keyboard {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: min(50vh, calc(100vh - 15rem));
-}
+
 .operation {
   margin: auto 12px;
 }
@@ -142,9 +155,9 @@ ion-input {
   margin: 0 auto;
   text-align: center;
 }
-screen-keyboard {
+/* screen-keyboard {
   height: 100%;
-}
+} */
 
 @media screen and (max-height: 640px) {
   h1 {

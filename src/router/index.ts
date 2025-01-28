@@ -23,12 +23,8 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/GameModes.vue"),
       },
       {
-        path: "tab2",
-        component: () => import("@/views/Tab2Page.vue"),
-      },
-      {
-        path: "tab3",
-        component: () => import("@/views/Tab3Page.vue"),
+        path: "settings",
+        component: () => import("@/views/SettingsPage.vue"),
       },
     ],
   },
@@ -66,6 +62,10 @@ const routes: Array<RouteRecordRaw> = [
         return "/";
       }
     },
+  },
+  {
+    path: "/keyboard",
+    component: () => import("@/components/KeyboardSettings.vue"),
   },
 ];
 

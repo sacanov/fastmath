@@ -36,7 +36,6 @@ export class FAGame {
   }
 
   verifyAnswer(solution: number): void {
-    console.log(this.problem.value.solution, solution);
     if (solution !== Number(this.problem.value.solution)) {
       this.score = 0;
     } else {
