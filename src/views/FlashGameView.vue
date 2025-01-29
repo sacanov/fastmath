@@ -3,18 +3,10 @@ import { Timer } from "@/composables/timer";
 import { useFAGameSettingsStore } from "@/stores/FAGameSettings";
 import { nextTick, onMounted, ref, Ref, watch } from "vue";
 import GameToolbar from "@/components/GameToolbar.vue";
-import {
-  IonButton,
-  IonContent,
-  IonInput,
-  IonPage,
-  isPlatform,
-} from "@ionic/vue";
+import { IonButton, IonContent, IonInput, IonPage } from "@ionic/vue";
 import router from "@/router";
 import { FAGame } from "@/composables/faGame";
 import GameResults from "@/components/GameResults.vue";
-
-const onMobile = isPlatform("mobile");
 
 const startingCountdown = new Timer(3);
 
@@ -56,7 +48,7 @@ const flashingFinished = game.flashingFinished();
 const inputEl = ref();
 
 watch(flashingFinished, (newValue) => {
-  if (newValue && !onMobile) {
+  if (newValue === true) {
     // set focus when app is running on web
     nextTick(() => {
       inputEl.value.$el.setFocus();
@@ -95,6 +87,7 @@ const answer = () => {
           v-model="solution"
           ref="inputEl"
           placeholder="answer"
+          inputmode="numeric"
         ></ion-input>
         <ion-button @click="answer"> enter</ion-button>
       </div>

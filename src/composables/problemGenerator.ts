@@ -472,7 +472,7 @@ export class FAProblemGenerator extends ProblemGenerator {
         this.generateNumber(
           {
             lowerBound: 1 + 10 ** (this.store.numberOfDigits - 1),
-            upperBound: this.store.numberOfDigits * 10 - 1,
+            upperBound: this.store.numberOfDigits ** 10 - 1,
           },
           0
         )
