@@ -79,13 +79,13 @@ const alertButtons = [
         <ion-segment-button value="right">right</ion-segment-button>
       </ion-segment>
 
-      <Suspense>
-        <screen-keyboard
-          :height="height"
-          :width="width"
-          :position="position"
-        ></screen-keyboard
-      ></Suspense>
+      <!-- <Suspense> -->
+      <screen-keyboard
+        :height="height"
+        :width="width"
+        :position="position"
+      ></screen-keyboard>
+      <!-- </Suspense> -->
 
       <ion-alert
         trigger="quit-button"

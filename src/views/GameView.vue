@@ -1,8 +1,3 @@
-<!-- To Do 
-
-score stats
--->
-
 <script setup lang="ts">
 import { nextTick, onMounted, Ref, ref, watch } from "vue";
 import { Timer } from "@/composables/timer";
@@ -17,8 +12,9 @@ import router from "@/router";
 
 const props = defineProps<{ type: "speedArithmetic" | "fractions" }>();
 
-const onMobile = isPlatform("mobile");
+const onMobile = isPlatform("android") || isPlatform("ios");
 
+console.log(onMobile);
 const startingCountdown = new Timer(3);
 
 const stage: Ref<"starting" | "playing" | "finished"> = ref("starting");

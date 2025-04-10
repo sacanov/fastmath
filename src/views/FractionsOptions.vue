@@ -1,7 +1,3 @@
-<!-- To Do
- tests
- -->
-
 <script setup lang="ts">
 import FractionEl from "@/components/FractionEl.vue";
 import FractionRanges from "@/components/FractionRanges.vue";

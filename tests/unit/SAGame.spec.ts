@@ -2,24 +2,7 @@ import { SAGame } from "@/composables/game";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useSAGameSettingsStore } from "@/stores/SAGameSettings";
-import { SAProblem } from "@/types/problem";
-import { Ref } from "vue";
-
-const solveProblem = (problem: Ref<SAProblem>) => {
-  switch (problem.value.operation) {
-    case "+":
-      return problem.value.firstOperand + problem.value.secondOperand;
-
-    case "x":
-      return problem.value.firstOperand * problem.value.secondOperand;
-
-    case "/":
-      return problem.value.firstOperand / problem.value.secondOperand;
-
-    case "-":
-      return problem.value.firstOperand - problem.value.secondOperand;
-  }
-};
+import { solveIntProblem as solveProblem } from "../utils/solveProblem";
 
 describe("game", () => {
   beforeEach(() => {

@@ -30,7 +30,7 @@ const startGame = () => {
 
       <div class="options">
         Number of digits<ion-input
-          :maxlength="2"
+          :maxlength="1"
           v-model="numberOfDigits"
         ></ion-input>
 

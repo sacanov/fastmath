@@ -43,12 +43,17 @@ export class FAGame {
       const m = this.store.numberOfDigits;
       const n = this.store.numberOfOperands;
 
-      this.score = (1 / t ** 2) * n * m * 2 ** (m - 1);
+      const score = (1 / t ** 2) * n * m * 2 ** (m - 1);
+      this.score = Number(score.toFixed(2));
     }
   }
 
   getScore = () => {
     return this.score;
+  };
+
+  getProblemGenerator = () => {
+    return this.problemGenerator;
   };
 
   get numbers() {
@@ -62,14 +67,12 @@ export class FAGame {
 
 class flashProblemDisplayer {
   private timeout?: NodeJS.Timeout;
-  //   private numbers: Ref<number[]>;
   private problem: Ref<FAProblem>;
   currentNumber: Ref<number | undefined>;
   private stepDuration: number;
   private _finished: Ref<boolean>;
 
   constructor(problem: Ref<FAProblem>, stepDuration: number) {
-    // this.numbers = numbers;
     this.problem = problem;
     this.currentNumber = ref(undefined);
     this.stepDuration = stepDuration;

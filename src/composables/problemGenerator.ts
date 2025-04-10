@@ -1,7 +1,3 @@
-// ToDo
-
-//
-
 import { Range } from "@/types/ranges";
 import { PiniaStore } from "@/types/piniaStore";
 import {
@@ -15,7 +11,7 @@ import { useFractionsStore } from "@/stores/FractionsSettings";
 import { Fraction } from "./fraction";
 import { useFAGameSettingsStore } from "@/stores/FAGameSettings";
 
-export abstract class ProblemGenerator {
+abstract class ProblemGenerator {
   protected operations: Operation[];
   abstract store: PiniaStore<
     | typeof useSAGameSettingsStore
@@ -54,7 +50,7 @@ export abstract class ProblemGenerator {
     }
   };
 
-  protected generateNumber(range: Range, decimalPlaces: number): number {
+  generateNumber(range: Range, decimalPlaces: number): number {
     const randomInRange =
       Math.random() * (range.upperBound - range.lowerBound) + range.lowerBound;
     return Number(randomInRange.toFixed(decimalPlaces));
@@ -471,8 +467,11 @@ export class FAProblemGenerator extends ProblemGenerator {
       numbers.push(
         this.generateNumber(
           {
-            lowerBound: 1 + 10 ** (this.store.numberOfDigits - 1),
-            upperBound: this.store.numberOfDigits ** 10 - 1,
+            lowerBound:
+              this.store.numberOfDigits === 1
+                ? 1
+                : 1 + 10 ** (this.store.numberOfDigits - 1),
+            upperBound: 10 ** this.store.numberOfDigits - 1,
           },
           0
         )

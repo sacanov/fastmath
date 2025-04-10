@@ -23,7 +23,8 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "src/composables/timer.js",
-    "tests/**/*.spec.ts"
+    "tests/**/*.spec.ts",
+    "tests/**/*.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
